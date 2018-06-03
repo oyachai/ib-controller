@@ -331,7 +331,8 @@ public class IBController {
         windowHandlers.add(new ReloginDialogHandler());
         windowHandlers.add(new NonBrokerageAccountDialogHandler());
         windowHandlers.add(new ExitConfirmationDialogHandler());
-        
+        windowHandlers.add(new FinancialAdvisorWarningDialogHandler());
+
         return windowHandlers;
     }
     
@@ -455,7 +456,12 @@ public class IBController {
         }
 
         int portNumber = Settings.settings().getInt("ForceTwsApiPort", 0);
+        boolean readOnlyApi = Settings.settings().getBoolean("ReadOnlyAPI", false);
+        boolean bypassOrderPrecautions = Settings.settings().getBoolean("BypassOrderPrecautions", true);
+
         if (portNumber != 0) (new ConfigurationTask(new ConfigureTwsApiPortTask(portNumber))).executeAsync();
+        MyCachedThreadPool.getInstance().execute(new ConfigureApiSettingTask(isGateway, portNumber, readOnlyApi, bypassOrderPrecautions));
+
         Utils.sendConsoleOutputToTwsLog(!Settings.settings().getBoolean("LogToConsole", false));
     }
     
